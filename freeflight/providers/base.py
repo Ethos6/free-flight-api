@@ -102,8 +102,9 @@ class Provider:
         try:
             resp = await client.get(url, **kw)
         except httpx.HTTPError as exc:
-            self._fail(f"{type(exc).__name__}: {exc}"[:200], blocked=False)
-            raise ProviderError(str(exc)) from exc
+            msg = f"{type(exc).__name__}: {exc}".rstrip(": ")[:200]
+            self._fail(msg, blocked=False)
+            raise ProviderError(msg) from exc
         ms = int((time.perf_counter() - start) * 1000)
         if resp.status_code in (403, 429):
             self._fail(f"HTTP {resp.status_code}", blocked=True)
