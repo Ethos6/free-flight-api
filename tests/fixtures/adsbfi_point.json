@@ -1,0 +1,4 @@
+{"now":1792249000.0,"resultCount":2,"ptime":1,"aircraft":[
+{"hex":"406b0f","type":"adsb_icao","flight":"BAW117  ","r":"G-XWBA","t":"A35K","alt_baro":12025,"gs":311,"track":265.1,"lat":51.4701,"lon":-0.905,"seen_pos":0.1,"squawk":"7700"},
+{"hex":"3c6444","type":"adsb_icao","flight":"DLH4AB  ","r":"D-AIBA","t":"A319","alt_baro":35000,"gs":450,"track":120,"lat":51.2,"lon":-0.1,"seen_pos":0.8}
+]}

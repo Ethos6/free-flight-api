@@ -1,0 +1,8 @@
+{"ac":[
+{"hex":"401eb3","type":"mlat","flight":"GBHZE   ","r":"G-BHZE","t":"P28A","alt_baro":1450,"gs":45,"oat":0,"track":43,"baro_rate":-43,"squawk":"0435","lat":51.544524,"lon":-1.02676,"nic":0,"rc":0,"seen_pos":1.717,"alert":0,"spi":0,"mlat":["gs","track"],"tisb":[],"messages":49822,"seen":0,"rssi":-7.6,"dst":21.967,"dir":282},
+{"hex":"406b0f","type":"adsb_icao","flight":"BAW117  ","r":"G-XWBA","t":"A35K","desc":"AIRBUS A-350-1000","alt_baro":12000,"alt_geom":12450,"gs":310.2,"track":265.4,"baro_rate":1984,"squawk":"7700","emergency":"general","category":"A5","lat":51.47,"lon":-0.9,"seen_pos":0.4,"dbFlags":0,"dst":18.2},
+{"hex":"43c6f1","type":"adsb_icao","flight":"RRR4512 ","r":"ZZ336","t":"A332","alt_baro":24000,"gs":420,"track":10,"squawk":"4512","lat":51.8,"lon":-0.4,"seen_pos":2.1,"dbFlags":1,"dst":20.0},
+{"hex":"4ca7b5","type":"adsb_icao","flight":"EIN154  ","r":"EI-DEO","t":"A320","alt_baro":"ground","gs":12,"track":90,"lat":51.4706,"lon":-0.4619,"seen_pos":5.0,"dst":0.5},
+{"hex":"~2cc001","type":"tisb_other","alt_baro":3000,"lat":51.5,"lon":-0.5,"seen_pos":3.0},
+{"hex":"400aaa","type":"adsb_icao","flight":"NOPOS   ","seen":1.0}
+],"msg":"No error","now":1792249000000,"total":6,"ctime":1792249000000,"ptime":2}
