@@ -113,7 +113,8 @@ async def _check(ff, NoData) -> int:  # noqa: N803
         print(f"\n**OpenSky world snapshot:** unavailable from this IP ({exc})")
     near = await ff.nearby(51.47, -0.45, 60)
     print(f"**Merged nearby (Heathrow, 60 nm):** {near.count} aircraft from {[r.name for r in near.providers if r.ok]}")
-    t = await ff.track(near.aircraft[0].hex) if near.aircraft else None
+    pick = next((x for x in near.aircraft if x.callsign and not x.on_ground), None)
+    t = await ff.track(pick.callsign) if pick else None
     if t:
         print(
             f"**Track {t['query']}:** callsign={t['live'] and t['live'].get('callsign')} route={bool(t['route'])} aircraft_info={bool(t['aircraft'])}"

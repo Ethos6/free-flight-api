@@ -40,7 +40,7 @@ class Settings:
     # World snapshot refresh (seconds). Default depends on OpenSky credentials.
     world_ttl: float | None = None
     enrich_ttl: float = 86400.0
-    timeout: float = 10.0
+    timeout: float = 6.0
     api_keys: list[str] = field(default_factory=list)
     rate_limit: int = 0
     cors_origins: list[str] = field(default_factory=lambda: ["*"])
@@ -65,7 +65,7 @@ class Settings:
             cache_ttl=_num("FREEFLIGHT_CACHE_TTL", 5),
             world_ttl=_num("FREEFLIGHT_WORLD_TTL", 0) or None,
             enrich_ttl=_num("FREEFLIGHT_ENRICH_TTL", 86400),
-            timeout=_num("FREEFLIGHT_TIMEOUT", 10),
+            timeout=_num("FREEFLIGHT_TIMEOUT", 6),
             api_keys=_list("FREEFLIGHT_API_KEYS"),
             rate_limit=int(_num("FREEFLIGHT_RATE_LIMIT", 0)),
             cors_origins=_list("FREEFLIGHT_CORS_ORIGINS", "*"),
