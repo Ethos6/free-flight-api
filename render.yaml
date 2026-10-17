@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: free-flight-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
