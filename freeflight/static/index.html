@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FreeFlight — live flight tracker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+  :root { --bg:#0b1220; --panel:rgba(15,23,42,.92); --fg:#e2e8f0; --muted:#94a3b8; --accent:#f59e0b; --line:#1e293b; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  #map { position:absolute; inset:0; }
+  .bar { position:absolute; z-index:1000; top:12px; left:56px; right:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; pointer-events:none; }
+  .bar > * { pointer-events:auto; }
+  .brand { background:var(--panel); padding:8px 12px; border-radius:10px; font-weight:700; }
+  .brand span { color:var(--accent); }
+  form { display:flex; gap:6px; }
+  input, button { font:inherit; padding:8px 10px; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--fg); }
+  button { background:var(--accent); color:#111; border:none; font-weight:600; cursor:pointer; }
+  .stat { background:var(--panel); padding:8px 12px; border-radius:10px; color:var(--muted); }
+  .plane { color:var(--accent); font-size:20px; line-height:20px; text-shadow:0 0 2px #000; }
+  .leaflet-popup-content { margin:10px 12px; min-width:220px; }
+  .pop h3 { margin:0 0 4px; font-size:16px; }
+  .pop .r { color:#475569; margin-bottom:6px; }
+  .pop img { width:100%; border-radius:6px; margin-top:6px; }
+  .pop small { color:#64748b; }
+  .pop table { border-collapse:collapse; width:100%; }
+  .pop td { padding:1px 4px 1px 0; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="bar">
+  <div class="brand">✈️ Free<span>Flight</span></div>
+  <form id="f"><input id="q" placeholder="Callsign or ICAO hex (e.g. BAW117)" size="26"><button>Track</button></form>
+  <div class="stat" id="stat">Loading…</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+const map = L.map("map", { preferCanvas: true, worldCopyJump: true }).setView([51.47, -0.45], 8);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18, attribution: '&copy; OpenStreetMap contributors · data: adsb.lol (ODbL), airplanes.live, adsb.fi, OpenSky'
+}).addTo(map);
+const layer = L.layerGroup().addTo(map);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safe = u => /^https?:\/\//i.test(u || "") ? u : "";
+let timer;
+
+function icon(a) {
+  return L.divIcon({ className: "", iconSize: [20, 20], iconAnchor: [10, 10],
+    html: `<div class="plane" style="transform:rotate(${(a.track || 0) - 45}deg)">✈</div>` });
+}
+
+async function popup(a, marker) {
+  marker.bindPopup(`<div class="pop"><h3>${esc(a.callsign || a.hex)}</h3>Loading…</div>`).openPopup();
+  try {
+    const t = await (await fetch(`v1/track/${encodeURIComponent(a.hex)}`)).json();
+    const r = t.route, i = t.aircraft || {}, l = t.live || a;
+    marker.setPopupContent(`<div class="pop">
+      <h3>${esc(l.callsign || l.hex)} ${r && r.airline ? `<small>${esc(r.airline)}</small>` : ""}</h3>
+      ${r && r.origin ? `<div class="r">${esc(r.origin.iata || r.origin.icao)} ${esc(r.origin.city || "")} → ${esc(r.destination?.iata || r.destination?.icao)} ${esc(r.destination?.city || "")}</div>` : ""}
+      <table>
+        <tr><td>Aircraft</td><td>${esc(i.type || l.type || "")} ${esc(l.registration || i.registration || "")}</td></tr>
+        <tr><td>Altitude</td><td>${l.on_ground ? "on ground" : esc(l.altitude_ft) + " ft"}</td></tr>
+        <tr><td>Speed</td><td>${esc(l.ground_speed_kt ?? "")} kt</td></tr>
+        <tr><td>Squawk</td><td>${esc(l.squawk || "")}${l.emergency ? " ⚠️ " + esc(l.emergency) : ""}</td></tr>
+        <tr><td>ICAO</td><td>${esc(l.hex)}</td></tr>
+      </table>
+      ${safe(i.photo) ? `<img src="${esc(safe(i.photo))}" referrerpolicy="no-referrer" alt=""><small>${i.photo_credit ? "© " + esc(i.photo_credit) : ""}</small>` : ""}
+    </div>`);
+  } catch (e) { marker.setPopupContent(`<div class="pop">${esc(e.message)}</div>`); }
+}
+
+async function refresh() {
+  clearTimeout(timer);
+  const b = map.getBounds();
+  const q = new URLSearchParams({ lamin: Math.max(-90, b.getSouth()).toFixed(3), lomin: Math.max(-180, b.getWest()).toFixed(3),
+    lamax: Math.min(90, b.getNorth()).toFixed(3), lomax: Math.min(180, b.getEast()).toFixed(3), limit: 8000 });
+  try {
+    const r = await fetch(`v1/flights/bbox?${q}`);
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || r.statusText);
+    layer.clearLayers();
+    const many = d.aircraft.length > 600;
+    for (const a of d.aircraft) {
+      const m = many
+        ? L.circleMarker([a.lat, a.lon], { radius: 2.5, color: a.emergency ? "#ef4444" : "#f59e0b", weight: 1, fillOpacity: .9 })
+        : L.marker([a.lat, a.lon], { icon: icon(a), title: a.callsign || a.hex });
+      m.on("click", () => popup(a, m));
+      m.addTo(layer);
+    }
+    const ok = d.providers.filter(p => p.ok).map(p => p.name);
+    document.getElementById("stat").textContent =
+      `${d.count.toLocaleString()} aircraft in view · ${ok.join(", ") || "cached"}${d.cached ? " (cached)" : ""}`;
+  } catch (e) { document.getElementById("stat").textContent = "Error: " + e.message; }
+  timer = setTimeout(refresh, map.getZoom() >= 6 ? 8000 : 60000);
+}
+
+document.getElementById("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const id = document.getElementById("q").value.trim();
+  if (!id) return;
+  const t = await (await fetch(`v1/track/${encodeURIComponent(id)}`)).json();
+  if (t.live) { map.setView([t.live.lat, t.live.lon], 9); setTimeout(refresh, 300); }
+  else document.getElementById("stat").textContent = `${id}: not airborne / not found`;
+});
+map.on("moveend", () => { clearTimeout(timer); timer = setTimeout(refresh, 400); });
+if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => map.setView([p.coords.latitude, p.coords.longitude], 8), () => {}, { timeout: 3000 });
+refresh();
+</script>
+</body>
+</html>
