@@ -53,7 +53,7 @@ curl "http://localhost:8000/v1/flights/nearby?lat=51.47&lon=-0.45&radius_nm=30"
 ## ✨ Features
 
 - **Three networks merged.** Each aircraft is matched by its ICAO address across networks. The freshest position wins, and gaps (registration, type, callsign) are filled in from the others, so you get better coverage than any single network.
-- **World snapshot.** `/v1/flights/world` returns every aircraft OpenSky is tracking worldwide (often 10,000+), cached so it stays within OpenSky's free credit budget.
+- **World snapshot.** `/v1/flights/world` returns every aircraft OpenSky is tracking worldwide (typically 10,000–13,000 aircraft), cached so it stays within OpenSky's free credit budget.
 - **Polite by design.** Each network gets its own request pacing (about 1 req/s), with a circuit breaker on 429 or 5xx errors and automatic failover. Requests are coalesced and grid-cached, so 1,000 clients looking at the same area cost one upstream call.
 - **Flight lookups:** callsign, ICAO hex, registration, aircraft type, military, squawk, and emergencies (7500/7600/7700).
 - **`/v1/track/{callsign}`** returns the live position, origin and destination airports and airline (from [adsbdb](https://www.adsbdb.com)), aircraft owner and model, and a photo (from [planespotters.net](https://www.planespotters.net)).
@@ -154,6 +154,7 @@ flowchart LR
 - **Where coverage comes from.** Live data comes from thousands of volunteer ADS-B and MLAT receivers. Coverage is excellent over North America, Europe, and much of Asia and Oceania. It is patchy over oceans, polar regions and parts of Africa, because there are no ground receivers there.
 - **What gets tracked.** Aircraft are tracked when they carry an ADS-B or Mode-S transponder that a receiver can hear. That covers virtually all airliners and most business jets and general aviation. Gliders and aircraft without transponders may be missing.
 - **The world snapshot.** `/v1/flights/world` is OpenSky's global view. Anonymous access gets about 100 global queries per day, so FreeFlight refreshes it every 15 minutes by default. Create a free OpenSky API client and set `FREEFLIGHT_OPENSKY_CLIENT_ID` and `FREEFLIGHT_OPENSKY_CLIENT_SECRET` to refresh it every 90 seconds.
+- **Some networks restrict datacenter IPs.** In our GitHub Actions check, adsb.fi and OpenSky answered (12,063 aircraft in the world snapshot) while airplanes.live returned 403 and adsb.lol timed out from GitHub's cloud runners. From home and residential connections all networks normally work. FreeFlight fails over automatically, so you get the networks that are reachable from your server.
 - **Daily health check.** The [Provider health](https://github.com/Ethos6/free-flight-api/actions/workflows/provider-health.yml) workflow queries every network from a GitHub runner and posts the results.
 
 ## ⚖️ Data sources & terms
