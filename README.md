@@ -8,6 +8,7 @@ FreeFlight merges three volunteer ADS-B receiver networks (adsb.lol, airplanes.l
 It also gives you flight routes, aircraft details, photos, a live map, a streaming feed, OpenSky- and ADSBExchange-compatible endpoints, and an MCP server for AI agents.
 
 [![CI](https://github.com/Ethos6/free-flight-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Ethos6/free-flight-api/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Ethos6/free-flight-api)](https://github.com/Ethos6/free-flight-api/releases)
 [![Provider health](https://github.com/Ethos6/free-flight-api/actions/workflows/provider-health.yml/badge.svg)](https://github.com/Ethos6/free-flight-api/actions/workflows/provider-health.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.10%E2%80%933.13-blue)
@@ -15,6 +16,10 @@ It also gives you flight routes, aircraft details, photos, a live map, a streami
 ![MCP](https://img.shields.io/badge/MCP-server-8A2BE2)
 
 [Quick start](#-quick-start) · [Endpoints](#-endpoints) · [Live map](#%EF%B8%8F-live-map) · [Drop-in compatibility](#-drop-in-replacement) · [MCP](#-mcp-server-for-ai-agents) · [How it works](#-how-it-works) · [Coverage & limits](#-coverage-honest-numbers)
+
+<img src="docs/demo.gif" alt="FreeFlight live map with real aircraft" width="850">
+
+<sub>Recorded automatically by the <a href="https://github.com/Ethos6/free-flight-api/actions/workflows/demo.yml">Demo GIF workflow</a>: live aircraft from the ADS-B networks, a track popup, then all of Europe.</sub>
 
 </div>
 
