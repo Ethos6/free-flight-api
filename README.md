@@ -2,6 +2,8 @@
 
 # ✈️ FreeFlight API
 
+![FreeFlight API logo](free-flight-api-mark.svg)
+
 **A free, self-hosted live flight tracking API. No API key, no quotas, no credit card.**
 
 FreeFlight merges three volunteer ADS-B receiver networks (adsb.lol, airplanes.live and adsb.fi) with the OpenSky Network's global snapshot, and serves them through one clean JSON API.<br>
